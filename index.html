@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>PertanianKu - Aplikasi Petani Cerdas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #2c5f2d;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            max-width: 450px;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .pages-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            min-height: 100%;
+            animation: slideIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .scroll-area {
+            height: calc(100% - 70px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .close-btn, .back-btn {
+            background: rgba(0,0,0,0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: black;
+            font-weight: bold;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: inherit;
+            z-index: 10;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid black;
+        }
+
+        .sticky-header h2 {
+            flex: 1;
+            font-size: 18px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+
+        .nav-item.active {
+            background: black;
+        }
+
+        .nav-item.active .nav-label,
+        .nav-item.active .nav-icon {
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            color: black;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            color: black;
+        }
+
+        /* HOME PAGE */
+        .home-header {
+            background: #B8E1FF;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid black;
+        }
+
+        .home-header h1 {
+            color: #8B4513;
+            font-size: 24px;
+        }
+
+        .tutorial-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .home-middle {
+            background: #8B4513;
+            min-height: calc(100vh - 140px);
+            padding: 40px 20px;
+        }
+
+        .features-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature-btn {
+            background: #90EE90;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #32CD32;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+
+        .feature-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* KALKULATOR */
+        .calculator-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #4A90D9;
+        }
+
+        .calculator-header {
+            background: #4A90D9;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid black;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .calculator-header h2 {
+            color: red;
+            flex: 1;
+        }
+
+        .calculator-screen {
+            background: black;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+
+        .history-input {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            text-align: right;
+            min-height: 20px;
+        }
+
+        .current-input {
+            color: white;
+            font-size: 42px;
+            text-align: right;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .calc-btn {
+            padding: 20px;
+            font-size: 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: white;
+            font-weight: bold;
+        }
+
+        .calc-btn.operator {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .calc-btn.equals {
+            background: #ffa500;
+            color: white;
+        }
+
+        .calc-btn.function {
+            background: #ddd;
+        }
+
+        .unit-section {
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .unit-title {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .unit-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .unit-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 55px;
+        }
+
+        /* LAYER 2 */
+        .layer2-header {
+            background: #B8E1FF;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid black;
+        }
+
+        .layer2-header h2 {
+            color: #8B4513;
+            flex: 1;
+        }
+
+        .layer2-content {
+            background: #2E7D32;
+            min-height: calc(100% - 70px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .yellow-card {
+            background: #FFD700;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .yellow-card:hover {
+            transform: scale(1.02);
+        }
+
+        .yellow-card h3 {
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        /* LAYER 3,4,5 */
+        .white-page {
+            background: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #2E7D32;
+        }
+
+        .info-card h3 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+
+        .gray-bg {
+            background: #808080;
+        }
+
+        /* TANAMAN */
+        .tanaman-page {
+            background: #f0f0f0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+        }
+
+        .tanaman-header {
+            background: white;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tanaman-header h2 {
+            color: #8B4513;
+        }
+
+        .tanaman-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .tanaman-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tanaman-card strong {
+            color: #2E7D32;
+        }
+
+        .add-btn {
+            background: #4CAF50;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* DETAIL TANAMAN */
+        .detail-container {
+            background: #8B4513;
+            min-height: 100%;
+            padding-bottom: 20px;
+        }
+
+        .detail-header {
+            background: #8B4513;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid black;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .detail-header h2 {
+            color: red;
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .info-card-green {
+            background: #2E7D32;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card-green h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .info-card-green p {
+            color: black;
+            font-weight: bold;
+        }
+
+        .task-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .task-item label {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .task-item.completed label {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-warning {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            color: #856404;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* CATATAN */
+        .catatan-page {
+            background: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+        }
+
+        .catatan-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .catatan-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .catatan-preview {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .fab-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 100;
+            font-size: 28px;
+            color: white;
+            border: none;
+        }
+
+        /* LAYER 8 EDITOR */
+        .editor-container {
+            background: #2E7D32;
+            min-height: 100%;
+        }
+
+        .editor-header {
+            background: #B8E1FF;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid black;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .editor-header h2 {
+            color: #8B4513;
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .note-frame {
+            border: 3px solid black;
+            margin: 20px;
+            background: #2E7D32;
+            padding: 15px;
+        }
+
+        .note-judul {
+            background: #B8E1FF;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .note-judul input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .note-isi {
+            min-height: 300px;
+            background: #8B4513;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .note-isi [contenteditable="true"] {
+            background: #8B4513;
+            color: white;
+            min-height: 250px;
+            outline: none;
+        }
+
+        .editor-toolbar-bottom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px;
+            justify-content: center;
+        }
+
+        .tool-btn {
+            padding: 10px 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .tool-btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .bg-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px;
+        }
+
+        .bg-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .bg-option.selected {
+            border-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="pages-container" id="themeContainer">
+            <!-- HOME PAGE -->
+            <div id="home-page" class="page active">
+                <div class="home-header">
+                    <h1>PertanianKu</h1>
+                    <div class="tutorial-icon" onclick="showTutorial()">?</div>
+                </div>
+                <div class="home-middle">
+                    <div class="features-container">
+                        <button class="feature-btn" onclick="showPage('layer1')">🧮 Kalkulator</button>
+                        <button class="feature-btn" onclick="showPage('layer2')">🌱 Pemupukan dan Obat Hama</button>
+                        <button class="feature-btn" onclick="showPage('layer5')">🌿 Kenali Tanaman Anda</button>
+                    </div>
+                </div>
+                <div class="bottom-nav">
+                    <div class="nav-item active" onclick="navigateTo('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+                    <div class="nav-item" onclick="navigateTo('tanaman')"><span class="nav-icon">🌿</span><span class="nav-label">Tanaman</span></div>
+                    <div class="nav-item" onclick="navigateTo('catatan')"><span class="nav-icon">📝</span><span class="nav-label">Catatan</span></div>
+                </div>
+            </div>
+
+            <!-- LAYER 1 KALKULATOR -->
+            <div id="layer1-page" class="page">
+                <div class="calculator-container">
+                    <div class="calculator-header">
+                        <button class="close-btn" onclick="showPage('home')">✕</button>
+                        <h2>Kalkulator</h2>
+                    </div>
+                    <div class="scroll-area">
+                        <div class="calculator-screen">
+                            <div class="history-input" id="calcHistory"></div>
+                            <div class="current-input" id="calcDisplay">0</div>
+                        </div>
+                        <div class="calculator-buttons">
+                            <button class="calc-btn function" onclick="calcClear()">AC</button>
+                            <button class="calc-btn function" onclick="calcDelete()">C</button>
+                            <button class="calc-btn operator" onclick="calcOperatorClick('/')">÷</button>
+                            <button class="calc-btn operator" onclick="calcOperatorClick('*')">×</button>
+                            <button class="calc-btn" onclick="calcNumberClick('7')">7</button>
+                            <button class="calc-btn" onclick="calcNumberClick('8')">8</button>
+                            <button class="calc-btn" onclick="calcNumberClick('9')">9</button>
+                            <button class="calc-btn operator" onclick="calcOperatorClick('-')">-</button>
+                            <button class="calc-btn" onclick="calcNumberClick('4')">4</button>
+                            <button class="calc-btn" onclick="calcNumberClick('5')">5</button>
+                            <button class="calc-btn" onclick="calcNumberClick('6')">6</button>
+                            <button class="calc-btn operator" onclick="calcOperatorClick('+')">+</button>
+                            <button class="calc-btn" onclick="calcNumberClick('1')">1</button>
+                            <button class="calc-btn" onclick="calcNumberClick('2')">2</button>
+                            <button class="calc-btn" onclick="calcNumberClick('3')">3</button>
+                            <button class="calc-btn equals" onclick="calcCalculate()">=</button>
+                            <button class="calc-btn" onclick="calcNumberClick('0')">0</button>
+                            <button class="calc-btn" onclick="calcNumberClick('.')">.</button>
+                        </div>
+                        <div class="unit-section">
+                            <div class="unit-title">📏 Satuan Panjang</div>
+                            <div class="unit-buttons">
+                                <button class="unit-btn" onclick="convertUnit('km', 'm')">km</button>
+                                <button class="unit-btn" onclick="convertUnit('hm', 'm')">hm</button>
+                                <button class="unit-btn" onclick="convertUnit('dam', 'm')">dam</button>
+                                <button class="unit-btn" onclick="convertUnit('m', 'cm')">m</button>
+                                <button class="unit-btn" onclick="convertUnit('dm', 'm')">dm</button>
+                                <button class="unit-btn" onclick="convertUnit('cm', 'm')">cm</button>
+                                <button class="unit-btn" onclick="convertUnit('mm', 'm')">mm</button>
+                            </div>
+                        </div>
+                        <div class="unit-section">
+                            <div class="unit-title">⚖️ Satuan Berat</div>
+                            <div class="unit-buttons">
+                                <button class="unit-btn" onclick="convertUnit('kg', 'g')">kg</button>
+                                <button class="unit-btn" onclick="convertUnit('hg', 'g')">hg</button>
+                                <button class="unit-btn" onclick="convertUnit('dag', 'g')">dag</button>
+                                <button class="unit-btn" onclick="convertUnit('g', 'kg')">g</button>
+                                <button class="unit-btn" onclick="convertUnit('dg', 'g')">dg</button>
+                                <button class="unit-btn" onclick="convertUnit('cg', 'g')">cg</button>
+                                <button class="unit-btn" onclick="convertUnit('mg', 'g')">mg</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 2 PEMUPUKAN DAN OBAT HAMA -->
+            <div id="layer2-page" class="page">
+                <div class="white-page">
+                    <div class="layer2-header">
+                        <button class="close-btn" onclick="showPage('home')">✕</button>
+                        <h2>Pemupukan dan Obat Hama</h2>
+                    </div>
+                    <div class="layer2-content">
+                        <div class="yellow-card" onclick="showPage('layer3')">
+                            <h3>🌱 Jenis-jenis Pupuk</h3>
+                            <p>Pelajari berbagai jenis pupuk</p>
+                        </div>
+                        <div class="yellow-card" onclick="showPage('layer4')">
+                            <h3>🐛 Jenis-jenis Obat Hama</h3>
+                            <p>Kenali pestisida dan fungsinya</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 3 DATA PUPUK -->
+            <div id="layer3-page" class="page">
+                <div class="white-page">
+                    <div class="sticky-header">
+                        <button class="close-btn" onclick="showPage('layer2')">✕</button>
+                        <h2>Jenis-jenis Pupuk</h2>
+                    </div>
+                    <div class="content-scroll gray-bg">
+                        <div class="info-card"><h3>🌾 NPK</h3><p><strong>Fungsi:</strong> Pertumbuhan daun, akar, dan kekuatan tanaman. Mengandung Nitrogen, Fosfor, dan Kalium yang seimbang untuk pertumbuhan optimal.</p></div>
+                        <div class="info-card"><h3>💚 Urea</h3><p><strong>Fungsi:</strong> Mempercepat pertumbuhan daun. Mengandung Nitrogen 46% yang membuat tanaman lebih hijau dan subur.</p></div>
+                        <div class="info-card"><h3>🍂 Kompos</h3><p><strong>Fungsi:</strong> Menyuburkan tanah. Pupuk organik dari sisa-sisa makhluk hidup yang memperbaiki struktur tanah.</p></div>
+                        <div class="info-card"><h3>🐄 Pupuk Kandang</h3><p><strong>Fungsi:</strong> Memperbaiki struktur tanah. Berasal dari kotoran hewan yang difermentasi, menambah unsur hara makro dan mikro.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 4 DATA OBAT HAMA -->
+            <div id="layer4-page" class="page">
+                <div class="white-page">
+                    <div class="sticky-header">
+                        <button class="close-btn" onclick="showPage('layer2')">✕</button>
+                        <h2>Jenis-jenis Obat Hama</h2>
+                    </div>
+                    <div class="content-scroll gray-bg">
+                        <div class="info-card"><h3>🐛 Pestisida</h3><p><strong>Fungsi:</strong> Untuk hama umum seperti walang sangit, ulat grayak, kutu daun, dan belalang. Membasmi serangga perusak tanaman.</p></div>
+                        <div class="info-card"><h3>🍄 Fungisida</h3><p><strong>Fungsi:</strong> Untuk jamur seperti embun tepung, busuk akar, karat daun. Mengendalikan penyakit akibat jamur.</p></div>
+                        <div class="info-card"><h3>🦟 Insektisida</h3><p><strong>Fungsi:</strong> Untuk serangga seperti penggerek batang, kepik hijau, thrips. Membasmi serangga hama secara spesifik.</p></div>
+                        <div class="info-card"><h3>🌿 Herbisida</h3><p><strong>Fungsi:</strong> Untuk gulma seperti rumput teki, bayam duri, eceng gondok. Membunuh tanaman pengganggu di lahan pertanian.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 5 TANAMAN INDONESIA -->
+            <div id="layer5-page" class="page">
+                <div class="white-page">
+                    <div class="sticky-header">
+                        <button class="close-btn" onclick="showPage('home')">✕</button>
+                        <h2>Kenali Tanaman Indonesia</h2>
+                    </div>
+                    <div class="content-scroll gray-bg">
+                        <div class="info-card"><h3>🌾 Padi</h3><p><strong>Jenis:</strong> Tanaman Pangan<br><strong>Deskripsi:</strong> Penghasil beras, makanan pokok masyarakat Indonesia.<br><strong>Perawatan:</strong> Butuh air cukup, pemupukan NPK secara rutin.</p></div>
+                        <div class="info-card"><h3>🌽 Jagung</h3><p><strong>Jenis:</strong> Tanaman Pangan<br><strong>Deskripsi:</strong> Sumber karbohidrat dan pakan ternak.<br><strong>Perawatan:</strong> Tanah subur, pemupukan berkala.</p></div>
+                        <div class="info-card"><h3>🌶️ Cabai</h3><p><strong>Jenis:</strong> Hortikultura<br><strong>Deskripsi:</strong> Bumbu dapur utama yang selalu dibutuhkan.<br><strong>Perawatan:</strong> Rentan hama kutu daun, perlu pengendalian hama rutin.</p></div>
+                        <div class="info-card"><h3>🍅 Tomat</h3><p><strong>Jenis:</strong> Hortikultura<br><strong>Deskripsi:</strong> Buah serbaguna untuk sayur dan lalapan.<br><strong>Perawatan:</strong> Perlu penyangga agar buah tidak menyentuh tanah.</p></div>
+                        <div class="info-card"><h3>🥥 Kelapa</h3><p><strong>Jenis:</strong> Perkebunan<br><strong>Deskripsi:</strong> Tanaman serbaguna dari akar hingga buah.<br><strong>Perawatan:</strong> Tahan panas dan kekeringan.</p></div>
+                        <div class="info-card"><h3>🌴 Kelapa Sawit</h3><p><strong>Jenis:</strong> Perkebunan<br><strong>Deskripsi:</strong> Digunakan industri minyak goreng.<br><strong>Perawatan:</strong> Pemupukan rutin, pengendalian hama terpadu.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HALAMAN TANAMAN -->
+            <div id="tanaman-page" class="page">
+                <div class="tanaman-page">
+                    <div class="tanaman-header"><h2>Data Tanaman</h2></div>
+                    <div class="tanaman-content" id="tanamanList"></div>
+                    <div style="padding: 20px;"><button class="add-btn" onclick="showPage('tambahTanaman')">+ Tambahkan Data Tanaman</button></div>
+                </div>
+                <div class="bottom-nav">
+                    <div class="nav-item" onclick="navigateTo('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+                    <div class="nav-item active" onclick="navigateTo('tanaman')"><span class="nav-icon">🌿</span><span class="nav-label">Tanaman</span></div>
+                    <div class="nav-item" onclick="navigateTo('catatan')"><span class="nav-icon">📝</span><span class="nav-label">Catatan</span></div>
+                </div>
+            </div>
+
+            <!-- TAMBAH TANAMAN -->
+            <div id="tambahTanaman-page" class="page">
+                <div class="white-page">
+                    <div class="sticky-header">
+                        <button class="back-btn" onclick="showPage('tanaman')">← Batal</button>
+                        <h2>Tambah Data Tanaman</h2>
+                        <button class="save-btn" style="width: auto; padding: 8px 16px;" onclick="simpanTanamanBaru()">Simpan</button>
+                    </div>
+                    <div class="content-scroll">
+                        <div class="form-group"><label>Nama Lahan</label><input type="text" id="newTanamanNama" placeholder="contoh: lahan"></div>
+                        <div class="form-group"><label>Jenis Tanaman</label><input type="text" id="newTanamanJenis" placeholder="contoh: Padi"></div>
+                        <div class="form-group"><label>Usia Tanaman (hari)</label><input type="number" id="newTanamanUsia" placeholder="contoh: 30"></div>
+                        <div class="form-group"><label>Catatan Kecil</label><textarea id="newTanamanCatatan" placeholder="Catatan opsional..."></textarea></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 6 DETAIL TANAMAN -->
+            <div id="layer6-page" class="page">
+                <div class="detail-container">
+                    <div class="detail-header">
+                        <button class="close-btn" onclick="showPage('tanaman')">✕</button>
+                        <h2 id="detailNamaTanaman">Detail Tanaman</h2>
+                        <button class="delete-btn" onclick="hapusTanaman()">Hapus</button>
+                    </div>
+                    <div class="content-scroll">
+                        <div class="info-card-green"><h3>📌 Nama Lahan</h3><p id="detailNama">-</p></div>
+                        <div class="info-card-green"><h3>🌾 Jenis Tanaman</h3><p id="detailJenisTanaman">-</p></div>
+                        <div class="info-card-green"><h3>📊 Usia Tanaman</h3><p id="detailUsia">- hari</p></div>
+                        <div class="info-card-green"><h3>✅ Tugas Harian</h3><div id="taskListTanaman"></div></div>
+                        <div class="info-card-green"><h3>📝 Catatan Singkat</h3><textarea id="tanamanNote" class="form-group" rows="3" placeholder="Tambahkan catatan..."></textarea><button class="add-btn" style="margin-top:10px;" onclick="simpanNoteTanaman()">Simpan Catatan</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HALAMAN CATATAN -->
+            <div id="catatan-page" class="page">
+                <div class="catatan-page">
+                    <div class="tanaman-header"><h2>Catatan</h2></div>
+                    <div class="tanaman-content" id="catatanList"></div>
+                    <button class="fab-btn" onclick="showPage('layer7')">+</button>
+                </div>
+                <div class="bottom-nav">
+                    <div class="nav-item" onclick="navigateTo('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+                    <div class="nav-item" onclick="navigateTo('tanaman')"><span class="nav-icon">🌿</span><span class="nav-label">Tanaman</span></div>
+                    <div class="nav-item active" onclick="navigateTo('catatan')"><span class="nav-icon">📝</span><span class="nav-label">Catatan</span></div>
+                </div>
+            </div>
+
+            <!-- LAYER 7 TAMBAH CATATAN -->
+            <div id="layer7-page" class="page">
+                <div class="white-page">
+                    <div class="sticky-header">
+                        <button class="close-btn" onclick="showPage('catatan')">✕</button>
+                        <h2>Buat Catatan</h2>
+                        <button class="save-btn" style="width: auto; padding: 8px 16px;" onclick="simpanCatatanBaru()">Simpan</button>
+                    </div>
+                    <div class="content-scroll">
+                        <div class="form-group"><label>Judul</label><input type="text" id="newCatatanJudul" placeholder="judul"></div>
+                        <div class="form-group"><label>Isi Catatan</label><textarea id="newCatatanIsi" rows="10" placeholder="Tulis catatan di sini..."></textarea></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 8 DETAIL CATATAN -->
+            <div id="layer8-page" class="page">
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <button class="close-btn" onclick="showPage('catatan')">✕</button>
+                        <h2 id="detailCatatanJudul">Detail Catatan</h2>
+                        <button class="delete-btn" onclick="hapusCatatan()">Hapus</button>
+                    </div>
+                    <div class="note-frame">
+                        <div class="note-judul">
+                            <input type="text" id="editCatatanJudul" placeholder="Judul">
+                        </div>
+                        <div class="note-isi">
+                            <div id="editCatatanIsi" contenteditable="true" style="min-height: 250px; color: white;"></div>
+                        </div>
+                    </div>
+                    <div class="editor-toolbar-bottom">
+                        <button class="tool-btn" onclick="formatText('undo')">↩️ Undo</button>
+                        <button class="tool-btn" onclick="formatText('redo')">↪️ Redo</button>
+                        <div class="tool-btn-group">
+                            <button class="tool-btn" onclick="transformText('uppercase')">AA</button>
+                            <button class="tool-btn" onclick="transformText('capitalize')">Aa</button>
+                            <button class="tool-btn" onclick="transformText('lowercase')">aa</button>
+                        </div>
+                        <input type="color" id="textColorPicker" onchange="applyTextColor()" value="#ffffff">
+                        <input type="color" id="bgColorPicker" onchange="applyNoteBgColor()" value="#8B4513">
+                        <button class="tool-btn" onclick="showBgOptions()">🎨 Background</button>
+                    </div>
+                    <div id="bgOptionsMenu" style="display:none;" class="bg-options"></div>
+                    <button class="save-btn" style="margin: 15px; width: calc(100% - 30px);" onclick="simpanEditCatatan()">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NAVIGASI
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId + '-page').classList.add('active');
+            if (pageId === 'tanaman') renderTanaman();
+            if (pageId === 'catatan') renderCatatan();
+        }
+
+        function navigateTo(page) {
+            showPage(page);
+            document.querySelectorAll('.bottom-nav .nav-item').forEach((item, i) => {
+                if ((page === 'home' && i === 0) || (page === 'tanaman' && i === 1) || (page === 'catatan' && i === 2)) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function showTutorial() {
+            alert("Selamat datang di aplikasi PertanianKu 🌱\n\nAplikasi ini dibuat untuk membantu Anda dalam mengelola kegiatan pertanian sehari-hari dengan lebih mudah, teratur, dan efisien.\n\n========================\nFITUR UTAMA\n========================\n\n1. Kalkulator\nDigunakan untuk menghitung berbagai kebutuhan pertanian seperti perhitungan angka dan konversi satuan (panjang dan berat). Fitur ini membantu mempermudah perhitungan tanpa harus menghitung secara manual.\n\n2. Pemupukan dan Obat Hama\nBerisi informasi tentang jenis-jenis pupuk dan obat hama yang sering digunakan dalam pertanian. Anda dapat mempelajari fungsi dan kegunaan masing-masing untuk meningkatkan hasil tanaman.\n\n3. Kenali Tanaman Anda\nBerisi informasi berbagai jenis tanaman yang ada di Indonesia, lengkap dengan deskripsi dan cara perawatan dasar. Fitur ini membantu Anda mengenali tanaman dengan lebih baik.\n\n========================\nNAVIGASI\n========================\n\n1. Home\nHalaman utama yang berisi semua fitur utama aplikasi.\n\n2. Tanaman\nDigunakan untuk menyimpan data tanaman yang sedang Anda kelola. Anda dapat menambahkan data seperti nama lahan, jenis tanaman, dan catatan.\n\n3. Catatan\nDigunakan untuk mencatat hal-hal penting seputar pertanian, seperti perkembangan tanaman atau rencana kegiatan.\n\n========================\nCARA MENGGUNAKAN\n========================\n\n1. Menambahkan Data Tanaman\n- Masuk ke halaman Tanaman\n- Tekan tombol \"Tambahkan Data Tanaman\"\n- Isi nama lahan dan jenis tanaman\n- Tekan simpan\n\n2. Mengelola Tugas Harian\n- Masuk ke detail tanaman\n- Tandai tugas yang sudah dilakukan\n- Tugas akan diperbarui setiap hari\n\n3. Membuat Catatan\n- Masuk ke halaman Catatan\n- Tekan tombol \"+\"\n- Isi judul dan isi catatan\n- Simpan\n\n========================\nPENYIMPANAN DATA\n========================\n\nSemua data yang Anda masukkan akan tersimpan secara otomatis di dalam perangkat Anda dan tidak akan hilang meskipun aplikasi ditutup.\n\n========================\nCATATAN\n========================\n\nAplikasi ini masih dalam tahap pengembangan dan akan terus diperbarui untuk memberikan fitur yang lebih lengkap dan bermanfaat.\n\nTerima kasih telah menggunakan PertanianKu 🌿");
+        }
+
+        // ============ KALKULATOR ============
+        let calcValue = '0';
+        let calcPrevValue = '';
+        let calcOperator = null;
+        let waitingForOperand = false;
+        
+        function updateCalcDisplay() {
+            document.getElementById('calcDisplay').innerText = calcValue;
+            if (calcOperator && calcPrevValue !== '' && waitingForOperand) {
+                document.getElementById('calcHistory').innerText = `${calcPrevValue} ${calcOperator}`;
+            } else if (calcOperator && calcPrevValue !== '') {
+                document.getElementById('calcHistory').innerText = `${calcPrevValue} ${calcOperator} ${calcValue}`;
+            } else {
+                document.getElementById('calcHistory').innerText = '';
+            }
+        }
+        
+        function calcNumberClick(num) {
+            if (waitingForOperand) {
+                calcValue = num;
+                waitingForOperand = false;
+            } else {
+                if (num === '.' && calcValue.includes('.')) return;
+                if (calcValue === '0' && num !== '.') {
+                    calcValue = num;
+                } else {
+                    calcValue += num;
+                }
+            }
+            updateCalcDisplay();
+        }
+        
+        function calcOperatorClick(op) {
+            if (calcOperator !== null && !waitingForOperand) {
+                calcCalculate();
+            }
+            calcPrevValue = calcValue;
+            calcOperator = op;
+            waitingForOperand = true;
+            updateCalcDisplay();
+        }
+        
+        function calcClear() { 
+            calcValue = '0'; 
+            calcPrevValue = ''; 
+            calcOperator = null; 
+            waitingForOperand = false;
+            updateCalcDisplay(); 
+        }
+        
+        function calcDelete() { 
+            if (!waitingForOperand) {
+                calcValue = calcValue.length > 1 ? calcValue.slice(0, -1) : '0';
+                updateCalcDisplay();
+            }
+        }
+        
+        function calcCalculate() {
+            if (calcOperator === null || waitingForOperand) return;
+            
+            let prev = parseFloat(calcPrevValue);
+            let curr = parseFloat(calcValue);
+            let result;
+            
+            switch(calcOperator) {
+                case '+': result = prev + curr; break;
+                case '-': result = prev - curr; break;
+                case '*': result = prev * curr; break;
+                case '/': 
+                    if (curr === 0) {
+                        alert('Tidak bisa membagi dengan nol!');
+                        return;
+                    }
+                    result = prev / curr; 
+                    break;
+                default: return;
+            }
+            
+            result = Math.round(result * 1000000) / 1000000;
+            
+            calcValue = result.toString();
+            calcPrevValue = '';
+            calcOperator = null;
+            waitingForOperand = false;
+            updateCalcDisplay();
+        }
+        
+        function convertUnit(from, to) {
+            let val = parseFloat(calcValue);
+            if (isNaN(val)) { calcValue = '0'; updateCalcDisplay(); return; }
+            const conversions = {
+                'km_m': val * 1000, 'hm_m': val * 100, 'dam_m': val * 10,
+                'm_cm': val * 100, 'dm_m': val / 10, 'cm_m': val / 100, 'mm_m': val / 1000,
+                'kg_g': val * 1000, 'hg_g': val * 100, 'dag_g': val * 10,
+                'g_kg': val / 1000, 'dg_g': val / 10, 'cg_g': val / 100, 'mg_g': val / 1000
+            };
+            let key = `${from}_${to}`;
+            if (conversions[key]) {
+                calcValue = conversions[key].toString();
+                waitingForOperand = false;
+                updateCalcDisplay();
+            }
+        }
+
+        // DATA TANAMAN
+        let tanamanData = JSON.parse(localStorage.getItem('tanamanData') || '[]');
+        let currentTanamanId = null;
+
+        function renderTanaman() {
+            const container = document.getElementById('tanamanList');
+            if (!container) return;
+            if (tanamanData.length === 0) {
+                container.innerHTML = '<div class="empty-state">🌿 Anda belum menyimpan data tanaman</div>';
+                return;
+            }
+            container.innerHTML = tanamanData.map((t, idx) => `
+                <div class="tanaman-card" onclick="openDetailTanaman(${idx})">
+                    <strong>${t.nama || 'Tanaman '+(idx+1)}</strong><br>
+                    <small>Jenis: ${t.jenis || '-'} | Usia: ${t.usia || 0} hari</small>
+                </div>
+            `).join('');
+        }
+
+        function simpanTanamanBaru() {
+            let nama = document.getElementById('newTanamanNama').value;
+            let jenis = document.getElementById('newTanamanJenis').value;
+            let usia = document.getElementById('newTanamanUsia').value;
+            let catatan = document.getElementById('newTanamanCatatan').value;
+            if (!nama) { alert('Nama lahan harus diisi!'); return; }
+            if (!jenis) { alert('Jenis tanaman harus diisi!'); return; }
+            tanamanData.push({
+                id: Date.now(), nama: nama, jenis: jenis,
+                usia: parseInt(usia) || 0, note: catatan,
+                tasks: { pagi: false, sore: false, pemupukan: false },
+                lastReset: new Date().toDateString()
+            });
+            localStorage.setItem('tanamanData', JSON.stringify(tanamanData));
+            document.getElementById('newTanamanNama').value = '';
+            document.getElementById('newTanamanJenis').value = '';
+            document.getElementById('newTanamanUsia').value = '';
+            document.getElementById('newTanamanCatatan').value = '';
+            renderTanaman();
+            showPage('tanaman');
+        }
+
+        function openDetailTanaman(id) {
+            currentTanamanId = id;
+            const t = tanamanData[id];
+            document.getElementById('detailNamaTanaman').innerText = t.nama;
+            document.getElementById('detailNama').innerText = t.nama;
+            document.getElementById('detailJenisTanaman').innerText = t.jenis;
+            document.getElementById('detailUsia').innerText = t.usia + ' hari';
+            document.getElementById('tanamanNote').value = t.note || '';
+            const today = new Date().toDateString();
+            if (t.lastReset !== today) {
+                t.tasks = { pagi: false, sore: false, pemupukan: false };
+                t.lastReset = today;
+                localStorage.setItem('tanamanData', JSON.stringify(tanamanData));
+            }
+            renderTasksTanaman();
+            showPage('layer6');
+        }
+
+        function renderTasksTanaman() {
+            if (currentTanamanId === null) return;
+            const t = tanamanData[currentTanamanId];
+            const container = document.getElementById('taskListTanaman');
+            if (t.usia === 0) {
+                container.innerHTML = '<div class="task-warning">⚠️ Isi usia tanaman terlebih dahulu!</div>';
+                return;
+            }
+            container.innerHTML = `
+                <div class="task-item ${t.tasks.pagi ? 'completed' : ''}"><input type="checkbox" ${t.tasks.pagi ? 'checked' : ''} onchange="toggleTask('pagi')"><label>💧 Siram pagi (05:00 - 07:00)</label></div>
+                <div class="task-item ${t.tasks.sore ? 'completed' : ''}"><input type="checkbox" ${t.tasks.sore ? 'checked' : ''} onchange="toggleTask('sore')"><label>💧 Siram sore (15:00 - 17:00)</label></div>
+                <div class="task-item ${t.tasks.pemupukan ? 'completed' : ''}"><input type="checkbox" ${t.tasks.pemupukan ? 'checked' : ''} onchange="toggleTask('pemupukan')"><label>🌿 Pemupukan</label></div>
+            `;
+        }
+
+        function toggleTask(taskName) {
+            if (currentTanamanId !== null) {
+                tanamanData[currentTanamanId].tasks[taskName] = !tanamanData[currentTanamanId].tasks[taskName];
+                localStorage.setItem('tanamanData', JSON.stringify(tanamanData));
+                renderTasksTanaman();
+            }
+        }
+
+        function simpanNoteTanaman() {
+            if (currentTanamanId !== null) {
+                tanamanData[currentTanamanId].note = document.getElementById('tanamanNote').value;
+                localStorage.setItem('tanamanData', JSON.stringify(tanamanData));
+                alert('Catatan disimpan!');
+            }
+        }
+
+        function hapusTanaman() {
+            if (currentTanamanId !== null && confirm('Hapus data tanaman ini?')) {
+                tanamanData.splice(currentTanamanId, 1);
+                localStorage.setItem('tanamanData', JSON.stringify(tanamanData));
+                currentTanamanId = null;
+                renderTanaman();
+                showPage('tanaman');
+            }
+        }
+
+        // DATA CATATAN
+        let catatanData = JSON.parse(localStorage.getItem('catatanData') || '[]');
+        let currentCatatanId = null;
+
+        function renderCatatan() {
+            const container = document.getElementById('catatanList');
+            if (!container) return;
+            if (catatanData.length === 0) {
+                container.innerHTML = '<div class="empty-state">📝 Anda belum membuat catatan</div>';
+                return;
+            }
+            container.innerHTML = catatanData.map((c, idx) => `
+                <div class="catatan-item" onclick="openDetailCatatan(${idx})">
+                    <div class="catatan-title">${c.judul || 'Tanpa Judul'}</div>
+                    <div class="catatan-preview">${(c.isi || '').substring(0, 50)}${(c.isi || '').length > 50 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        function simpanCatatanBaru() {
+            let judul = document.getElementById('newCatatanJudul').value;
+            let isi = document.getElementById('newCatatanIsi').value;
+            if (!judul) { alert('Judul harus diisi!'); return; }
+            catatanData.push({ id: Date.now(), judul: judul, isi: isi, tanggal: new Date().toLocaleString(), textColor: '#ffffff', bgColor: '#8B4513' });
+            localStorage.setItem('catatanData', JSON.stringify(catatanData));
+            document.getElementById('newCatatanJudul').value = '';
+            document.getElementById('newCatatanIsi').value = '';
+            renderCatatan();
+            showPage('catatan');
+        }
+
+        function openDetailCatatan(id) {
+            currentCatatanId = id;
+            const c = catatanData[id];
+            document.getElementById('detailCatatanJudul').innerText = c.judul;
+            document.getElementById('editCatatanJudul').value = c.judul;
+            document.getElementById('editCatatanIsi').innerHTML = (c.isi || '').replace(/\n/g, '<br>');
+            document.getElementById('editCatatanIsi').style.color = c.textColor || '#ffffff';
+            document.getElementById('editCatatanIsi').style.backgroundColor = c.bgColor || '#8B4513';
+            document.getElementById('textColorPicker').value = c.textColor || '#ffffff';
+            document.getElementById('bgColorPicker').value = c.bgColor || '#8B4513';
+            showPage('layer8');
+        }
+
+        function simpanEditCatatan() {
+            if (currentCatatanId !== null) {
+                catatanData[currentCatatanId].judul = document.getElementById('editCatatanJudul').value;
+                catatanData[currentCatatanId].isi = document.getElementById('editCatatanIsi').innerHTML.replace(/<br>/g, '\n');
+                catatanData[currentCatatanId].textColor = document.getElementById('editCatatanIsi').style.color;
+                catatanData[currentCatatanId].bgColor = document.getElementById('editCatatanIsi').style.backgroundColor;
+                localStorage.setItem('catatanData', JSON.stringify(catatanData));
+                alert('Catatan disimpan!');
+                renderCatatan();
+                showPage('catatan');
+            }
+        }
+
+        function hapusCatatan() {
+            if (currentCatatanId !== null && confirm('Hapus catatan ini?')) {
+                catatanData.splice(currentCatatanId, 1);
+                localStorage.setItem('catatanData', JSON.stringify(catatanData));
+                currentCatatanId = null;
+                renderCatatan();
+                showPage('catatan');
+            }
+        }
+
+        // EDITOR FUNCTIONS
+        function formatText(action) {
+            if (action === 'undo') document.execCommand('undo');
+            if (action === 'redo') document.execCommand('redo');
+        }
+
+        function transformText(type) {
+            let selection = window.getSelection();
+            if (selection.rangeCount) {
+                let range = selection.getRangeAt(0);
+                let span = document.createElement('span');
+                range.surroundContents(span);
+                let text = span.innerText;
+                if (type === 'uppercase') span.innerText = text.toUpperCase();
+                else if (type === 'lowercase') span.innerText = text.toLowerCase();
+                else if (type === 'capitalize') span.innerText = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                span.outerHTML = span.innerHTML;
+            }
+        }
+
+        function applyTextColor() {
+            let color = document.getElementById('textColorPicker').value;
+            document.execCommand('foreColor', false, color);
+            document.getElementById('editCatatanIsi').style.color = color;
+        }
+
+        function applyNoteBgColor() {
+            let color = document.getElementById('bgColorPicker').value;
+            document.getElementById('editCatatanIsi').style.backgroundColor = color;
+        }
+
+        function showBgOptions() {
+            let menu = document.getElementById('bgOptionsMenu');
+            if (menu.style.display === 'none') {
+                menu.innerHTML = `
+                    <div class="bg-option" style="background:white;" onclick="setThemeBg('white')"></div>
+                    <div class="bg-option" style="background:#B8E1FF;" onclick="setThemeBg('#B8E1FF')"></div>
+                    <div class="bg-option" style="background:#f0f0f0;" onclick="setThemeBg('#f0f0f0')"></div>
+                    <div class="bg-option" style="background:linear-gradient(135deg,#2E7D32,#8B4513);" onclick="setThemeBg('linear-gradient(135deg,#2E7D32,#8B4513)')"></div>
+                    <div class="bg-option" style="background:#FFD700;" onclick="setThemeBg('#FFD700')"></div>
+                    <div class="bg-option" style="background:#1a1a2e;" onclick="setThemeBg('#1a1a2e')"></div>
+                    <div class="bg-option" style="background:#000;position:relative;" onclick="setThemeBg('#000')"><span style="position:absolute; bottom:2px; right:2px; font-size:10px; color:white;">⭐</span></div>
+                    <div class="bg-option" style="background:#ccc;" onclick="uploadGalleryBg()">📁 +</div>
+                `;
+                menu.style.display = 'flex';
+            } else {
+                menu.style.display = 'none';
+            }
+        }
+
+        function setThemeBg(bg) {
+            document.getElementById('themeContainer').style.background = bg;
+            document.getElementById('themeContainer').style.backgroundImage = 'none';
+            document.getElementById('bgOptionsMenu').style.display = 'none';
+        }
+
+        function uploadGalleryBg() {
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                let file = e.target.files[0];
+                let url = URL.createObjectURL(file);
+                document.getElementById('themeContainer').style.backgroundImage = `url(${url})`;
+                document.getElementById('themeContainer').style.backgroundSize = 'cover';
+            };
+            input.click();
+            document.getElementById('bgOptionsMenu').style.display = 'none';
+        }
+
+        // RESET TUGAS JAM 5 PAGI
+        function checkReset() {
+            let now = new Date();
+            if (now.getHours() === 5 && now.getMinutes() === 0) {
+                tanamanData.forEach(t => {
+                    t.tasks = { pagi: false, sore: false, pemupukan: false };
+                    t.lastReset = now.toDateString();
+                });
+                localStorage.setItem('tanamanData', JSON.stringify(tanamanData));
+                if (currentTanamanId !== null) renderTasksTanaman();
+            }
+        }
+        setInterval(checkReset, 60000);
+
+        // INISIALISASI
+        renderTanaman();
+        renderCatatan();
+        updateCalcDisplay();
+    </script>
+</body>
+</html>
